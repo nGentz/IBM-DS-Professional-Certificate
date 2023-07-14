@@ -20,7 +20,6 @@ app.layout = html.Div(children=[html.H1('SpaceX Launch Records Dashboard',
                                                'font-size': 40}),
                                 # TASK 1: Add a dropdown list to enable Launch Site selection
                                 # The default select value is for ALL sites
-                                # dcc.Dropdown(id='site-dropdown',...)
                                 dcc.Dropdown(id='site-dropdown',
                                              options=[
                                                      {'label': 'All Sites', 'value': 'ALL'},
@@ -43,7 +42,6 @@ app.layout = html.Div(children=[html.H1('SpaceX Launch Records Dashboard',
 
                                 html.P("Payload range (Kg):"),
                                 # TASK 3: Add a slider to select payload range
-                                #dcc.RangeSlider(id='payload-slider',...)
                                 dcc.RangeSlider(id='payload-slider',
                                                 min=0,
                                                 max=10000,
@@ -67,20 +65,18 @@ def get_pie_chart(entered_site):
         title='Success Count for all launch sites')
         return fig
     else:
-        # return the outcomes piechart for a selected site
+        # return the outcomes piechart
         filtered_df=spacex_df[spacex_df['Launch Site']== entered_site]
         filtered_df=filtered_df.groupby(['Launch Site','class']).size().reset_index(name='class count')
         fig=px.pie(filtered_df,values='class count',names='class',title=f"Total Success Launches for site {entered_site}")
         return fig
 
 # TASK 4:
-# Add a callback function for `site-dropdown` and `payload-slider` as inputs, `success-payload-scatter-chart` as output
 @app.callback(Output(component_id='success-payload-scatter-chart',component_property='figure'),
                 [Input(component_id='site-dropdown',component_property='value'),
                 Input(component_id='payload-slider',component_property='value')])
 def scatter(entered_site,payload):
     filtered_df = spacex_df[spacex_df['Payload Mass (kg)'].between(payload[0],payload[1])]
-    # thought reusing filtered_df may cause issues, but tried it out of curiosity and it seems to be working fine
     
     if entered_site=='ALL':
         fig=px.scatter(filtered_df,x='Payload Mass (kg)',y='class',color='Booster Version Category',title='Success count on Payload mass for all sites')
